@@ -4,7 +4,7 @@
 #
 
 image:
-  repository: ghcr.io/benc-uk/python-demoapp
+  repository: ghcr.io/Rizwana200/python-devops-project
   tag: latest
   pullPolicy: Always
 

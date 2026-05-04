@@ -4,7 +4,7 @@ param planName string = 'app-plan-linux'
 param planTier string = 'P1v2'
 
 param webappName string = 'python-demoapp'
-param webappImage string = 'ghcr.io/benc-uk/python-demoapp:latest'
+param webappImage string = 'ghcr.io/Rizwana200/python-devops-project:latest'
 param weatherKey string = ''
 param releaseInfo string = 'Released on ${utcNow('f')}'
 

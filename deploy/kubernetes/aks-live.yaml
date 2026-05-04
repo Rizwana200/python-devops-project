@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/benc-uk/python-demoapp
+  repository: ghcr.io/Rizwana200/python-devops-project
   pullPolicy: Always
 
 service:
@@ -9,7 +9,7 @@ ingress:
   enabled: true
   host: python-demoapp.kube.benco.io
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
   tls:
     enabled: true
     secretName: kube-benco-io-cert

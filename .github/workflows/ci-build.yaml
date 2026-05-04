@@ -9,7 +9,7 @@ on:
 
 env:
   IMAGE_REG: ghcr.io
-  IMAGE_REPO: benc-uk/python-demoapp
+  IMAGE_REPO: Rizwana200/python-devops-project
 
 jobs:
   test:
