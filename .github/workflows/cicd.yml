@@ -13,7 +13,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Log in to GHCR
-        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: Rizwana200
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build Docker image
         run: docker build -t ghcr.io/rizwana200/python-devops-project:latest .
