@@ -9,18 +9,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. Login to GitHub Container Registry (GHCR)
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: Rizwana200
+          username: ${{ github.actor }}
           password: ${{ secrets.GHCR_TOKEN }}
 
+      # 3. Build Docker image
       - name: Build Docker image
         run: docker build -t ghcr.io/rizwana200/python-devops-project:latest .
 
+      # 4. Push Docker image
       - name: Push Docker image
         run: docker push ghcr.io/rizwana200/python-devops-project:latest
