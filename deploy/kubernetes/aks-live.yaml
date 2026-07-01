@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/Rizwana200/python-devops-project
+  repository: ghcr.io/rizwana200/python-devops-project
   pullPolicy: Always
 
 service:
