@@ -1,41 +1,67 @@
 {% extends "base.html" %} {% block content %}
+
 <br />
-<div class="jumbotron">
-  <h1><img src="/static/img/flask.png" height="80px" /> Python & Flask Demo App</h1>
 
-  <div class="lead">
-    This is a simple web application written in Python and using Flask. It has been designed with cloud demos &
-    containers in mind. Demonstrating capabilities such as auto scaling, deployment to Azure or Kubernetes, or anytime
-    you want something quick and lightweight to run & deploy.
+<div class="jumbotron text-center">
+  <h1>
+    <img src="/static/img/flask.png" height="80px" />
+    Python & Flask Demo App
+  </h1>
+
+  <p class="lead mt-3">
+    A Flask-based web application that displays real-time system monitoring information, containerized with Docker and
+    integrated with Kubernetes and CI/CD pipelines.
+  </p>
+
+  <hr />
+
+  <!-- BUTTON GRID -->
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <!-- GitHub -->
+      <div class="col-md-4 mb-3">
+        <img src="static/img/github-2.svg" class="icon mb-2" />
+        <br />
+        <a
+          href="https://github.com/Rizwana200/python-devops-project"
+          class="btn btn-primary btn-lg w-100"
+          target="_blank"
+        >
+          GitHub Repository
+        </a>
+      </div>
+
+      <!-- Docker -->
+      <div class="col-md-4 mb-3">
+        <img src="static/img/docker-whale.svg" class="icon mb-2" />
+        <br />
+        <a
+          href="https://github.com/users/Rizwana200/packages/container/package/python-devops-project"
+          class="btn btn-success btn-lg w-100"
+          target="_blank"
+        >
+          Docker Image (GHCR)
+        </a>
+      </div>
+
+      <!-- Kubernetes -->
+      <div class="col-md-4 mb-3">
+        <img src="static/img/kubernetes.svg" class="icon mb-2" />
+        <br />
+        <a
+          href="https://github.com/Rizwana200/python-devops-project/tree/main/deploy/kubernetes"
+          class="btn btn-warning btn-lg w-100"
+          target="_blank"
+        >
+          Kubernetes Manifests
+        </a>
+      </div>
+    </div>
   </div>
-  <br />
 
-  <div class="dimmed-box">
-    <p>
-      <img src="static/img/github-2.svg" class="icon" />
-      <a href="https://github.com/Rizwana200/python-devops-project" class="btn btn-info btn px-4"> GitHub Project </a>
+  <hr />
 
-      &nbsp;&nbsp;&nbsp;
-      <img src="static/img/docker-whale.svg" class="icon" />
-      <a
-        href="https://github.com/users/Rizwana200/packages/container/package/python-devops-project"
-        class="btn btn-info btn"
-      >
-        Docker Images
-      </a>
-    </p>
-
-    <hr />
-
-    <p>
-      <img src="static/img/python.svg" class="icon" />
-      <a class="btn btn-info btn" href="https://azure.microsoft.com/en-gb/develop/python/">
-        Get started with Azure &amp; Python
-      </a>
-    </p>
-
-    <br />
-    <p>Microsoft ❤ Open Source</p>
-  </div>
+  <p class="text-muted">🚀 Built using Flask • Docker • Kubernetes • GitHub Actions</p>
 </div>
+
 {% endblock %}
