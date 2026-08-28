@@ -32,11 +32,8 @@ def api_process():
     }
 
     try:
-
         for proc in psutil.process_iter():
-
             try:
-
                 pinfo = proc.as_dict(
                     attrs=[
                         "pid",
@@ -48,15 +45,12 @@ def api_process():
                 )
 
             except psutil.NoSuchProcess:
-
                 continue
 
             else:
-
                 apidata["processes"].append(pinfo)
 
     except Exception:
-
         pass
 
     return jsonify(apidata)
@@ -90,7 +84,6 @@ def api_monitor():
     # -----------------------------------------------------
 
     try:
-
         netio = psutil.net_io_counters()
 
         apidata["net_sent"] = (
@@ -101,7 +94,6 @@ def api_monitor():
 
         olddata["net_sent"] = netio.bytes_sent
 
-
         apidata["net_recv"] = (
             0
             if olddata["net_recv"] == 0
@@ -111,7 +103,6 @@ def api_monitor():
         olddata["net_recv"] = netio.bytes_recv
 
     except Exception:
-
         apidata["net_sent"] = -1
         apidata["net_recv"] = -1
 
@@ -121,7 +112,6 @@ def api_monitor():
     # -----------------------------------------------------
 
     try:
-
         diskio = psutil.disk_io_counters()
 
         apidata["disk_write"] = (
@@ -132,7 +122,6 @@ def api_monitor():
 
         olddata["disk_write"] = diskio.write_bytes
 
-
         apidata["disk_read"] = (
             0
             if olddata["disk_read"] == 0
@@ -142,12 +131,56 @@ def api_monitor():
         olddata["disk_read"] = diskio.read_bytes
 
     except Exception:
-
         apidata["disk_write"] = -1
         apidata["disk_read"] = -1
 
 
     return jsonify(apidata)
+
+
+# =========================================================
+# SYSTEM HEALTH API
+# =========================================================
+
+@app.route("/api/health")
+def api_health():
+    """
+    Calculates overall system health from
+    CPU, memory and disk utilization.
+    """
+
+    cpu = psutil.cpu_percent(interval=0.5)
+    memory = psutil.virtual_memory().percent
+    disk = psutil.disk_usage("/").percent
+
+
+    values = {
+        "cpu": cpu,
+        "memory": memory,
+        "disk": disk
+    }
+
+
+    # Determine worst condition
+    if any(value >= 90 for value in values.values()):
+
+        status = "critical"
+
+    elif any(value >= 75 for value in values.values()):
+
+        status = "warning"
+
+    else:
+
+        status = "healthy"
+
+
+    return jsonify({
+        "status": status,
+        "cpu": cpu,
+        "memory": memory,
+        "disk": disk
+    })
 
 
 # =========================================================
@@ -174,7 +207,6 @@ def api_network():
 
         try:
 
-            # Windows
             if platform.system().lower() == "windows":
 
                 command = [
@@ -186,7 +218,6 @@ def api_network():
                     target
                 ]
 
-            # Linux / Ubuntu
             else:
 
                 command = [
@@ -207,7 +238,6 @@ def api_network():
             )
 
 
-            # Target reachable
             if result.returncode == 0:
 
                 output = result.stdout
@@ -231,8 +261,6 @@ def api_network():
                     "latency_ms": latency
                 })
 
-
-            # Target unreachable
             else:
 
                 results.append({
@@ -268,7 +296,7 @@ def api_services():
     """
     Checks important operating system services.
 
-    Supports both Windows and Linux/Ubuntu.
+    Supports Windows and Linux/Ubuntu.
     """
 
     system = platform.system().lower()
@@ -276,9 +304,9 @@ def api_services():
     services = []
 
 
-    # =====================================================
-    # WINDOWS
-    # =====================================================
+    # -----------------------------------------------------
+    # WINDOWS SERVICES
+    # -----------------------------------------------------
 
     if system == "windows":
 
@@ -335,9 +363,9 @@ def api_services():
                 })
 
 
-    # =====================================================
-    # LINUX / UBUNTU
-    # =====================================================
+    # -----------------------------------------------------
+    # LINUX SERVICES
+    # -----------------------------------------------------
 
     else:
 

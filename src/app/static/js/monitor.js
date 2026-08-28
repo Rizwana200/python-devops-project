@@ -11,6 +11,12 @@ var options_io;
 
 var refresh_sec = 3.0;
 
+var proc_timer;
+var chart_timer;
+var service_timer;
+var network_timer;
+var health_timer;
+
 
 // =========================================================
 // INITIALIZE DASHBOARD
@@ -18,23 +24,18 @@ var refresh_sec = 3.0;
 
 function initCharts() {
 
-   // CPU + Memory
    data_memcpu = google.visualization.arrayToDataTable([
       ['Label', 'Value'],
       ['CPU', 0],
       ['Memory', 0]
    ]);
 
-
-   // Disk I/O
    data_disk = google.visualization.arrayToDataTable([
       ['Label', 'Value'],
       ['Disk read', 0],
       ['Disk write', 0]
    ]);
 
-
-   // Network I/O
    data_net = google.visualization.arrayToDataTable([
       ['Label', 'Value'],
       ['Net sent', 0],
@@ -42,9 +43,7 @@ function initCharts() {
    ]);
 
 
-   // Percentage gauge
    options_percent = {
-
       redFrom: 90,
       redTo: 100,
 
@@ -63,9 +62,7 @@ function initCharts() {
    };
 
 
-   // I/O gauge
    options_io = {
-
       max: 200,
 
       minorTicks: 10,
@@ -77,49 +74,41 @@ function initCharts() {
    };
 
 
-   // Create CPU/Memory gauge
    chart_memcpu =
       new google.visualization.Gauge(
          document.getElementById('chart1')
       );
 
-
-   // Create Disk gauge
    chart_disk =
       new google.visualization.Gauge(
          document.getElementById('chart2')
       );
 
-
-   // Create Network gauge
    chart_net =
       new google.visualization.Gauge(
          document.getElementById('chart3')
       );
 
 
-   // Initial refresh
+   // Initial dashboard data
    refreshCharts();
-
    refreshProcesses();
-
+   refreshServices();
    refreshNetwork();
+   refreshHealth();
 
 
-   // Start timers
+   // Default refresh rate
    setRefresh(refresh_sec);
 
-
    $('#refrate').text(refresh_sec);
-
    $('#refslider').val(refresh_sec);
 
 
-   // Refresh slider
    $(document).on(
       'input',
       '#refslider',
-      function () {
+      function() {
 
          setRefresh($(this).val());
 
@@ -129,13 +118,8 @@ function initCharts() {
 
 
 // =========================================================
-// REFRESH TIMERS
+// REFRESH TIMER
 // =========================================================
-
-var proc_timer;
-var chart_timer;
-var network_timer;
-
 
 function setRefresh(new_secs) {
 
@@ -144,17 +128,15 @@ function setRefresh(new_secs) {
    $('#refrate').text(refresh_sec);
 
 
-   // Clear existing timers
    clearInterval(proc_timer);
-
    clearInterval(chart_timer);
-
+   clearInterval(service_timer);
    clearInterval(network_timer);
+   clearInterval(health_timer);
 
 
-   // Process refresh
    proc_timer = setInterval(
-      function () {
+      function() {
 
          refreshProcesses();
 
@@ -163,9 +145,8 @@ function setRefresh(new_secs) {
    );
 
 
-   // Performance refresh
    chart_timer = setInterval(
-      function () {
+      function() {
 
          refreshCharts();
 
@@ -174,11 +155,30 @@ function setRefresh(new_secs) {
    );
 
 
-   // Network refresh
+   service_timer = setInterval(
+      function() {
+
+         refreshServices();
+
+      },
+      refresh_sec * 1000
+   );
+
+
    network_timer = setInterval(
-      function () {
+      function() {
 
          refreshNetwork();
+
+      },
+      refresh_sec * 1000
+   );
+
+
+   health_timer = setInterval(
+      function() {
+
+         refreshHealth();
 
       },
       refresh_sec * 1000
@@ -187,7 +187,149 @@ function setRefresh(new_secs) {
 
 
 // =========================================================
-// SYSTEM PERFORMANCE MONITOR
+// SYSTEM HEALTH
+// =========================================================
+
+function refreshHealth() {
+
+   $.ajax({
+
+      url: '/api/health',
+
+      type: 'GET',
+
+      dataType: 'json',
+
+
+      success: function(apidata) {
+
+         var status =
+            apidata.status.toLowerCase();
+
+
+         var statusText;
+         var statusIcon;
+
+
+         if (status === 'healthy') {
+
+            statusText = 'HEALTHY';
+            statusIcon = '🟢';
+
+         }
+         else if (status === 'warning') {
+
+            statusText = 'WARNING';
+            statusIcon = '🟡';
+
+         }
+         else if (status === 'critical') {
+
+            statusText = 'CRITICAL';
+            statusIcon = '🔴';
+
+         }
+         else {
+
+            statusText = 'UNKNOWN';
+            statusIcon = '⚪';
+
+         }
+
+
+         $('#health_status').text(
+            statusIcon + ' ' + statusText
+         );
+
+
+         updateHealthMetric(
+            '#health_cpu',
+            '#health_cpu_status',
+            apidata.cpu
+         );
+
+
+         updateHealthMetric(
+            '#health_memory',
+            '#health_memory_status',
+            apidata.memory
+         );
+
+
+         updateHealthMetric(
+            '#health_disk',
+            '#health_disk_status',
+            apidata.disk
+         );
+
+      },
+
+
+      error: function(request, error) {
+
+         $('#health_status').text(
+            '⚪ UNAVAILABLE'
+         );
+
+
+         console.log(
+            'Health API Request: ' +
+            JSON.stringify(request)
+         );
+
+      }
+
+   });
+}
+
+
+// =========================================================
+// HEALTH METRIC STATUS
+// =========================================================
+
+function updateHealthMetric(
+   valueSelector,
+   statusSelector,
+   value
+) {
+
+   var status;
+   var icon;
+
+
+   if (value >= 90) {
+
+      status = 'CRITICAL';
+      icon = '🔴';
+
+   }
+   else if (value >= 75) {
+
+      status = 'WARNING';
+      icon = '🟡';
+
+   }
+   else {
+
+      status = 'HEALTHY';
+      icon = '🟢';
+
+   }
+
+
+   $(valueSelector).text(
+      value.toFixed(2) + '%'
+   );
+
+
+   $(statusSelector).text(
+      icon + ' ' + status
+   );
+}
+
+
+// =========================================================
+// PERFORMANCE MONITOR
 // =========================================================
 
 function refreshCharts() {
@@ -201,9 +343,8 @@ function refreshCharts() {
       dataType: 'json',
 
 
-      success: function (apidata) {
+      success: function(apidata) {
 
-         // CPU
          data_memcpu.setValue(
             0,
             1,
@@ -211,7 +352,6 @@ function refreshCharts() {
          );
 
 
-         // Memory
          data_memcpu.setValue(
             1,
             1,
@@ -219,7 +359,6 @@ function refreshCharts() {
          );
 
 
-         // Disk read
          data_disk.setValue(
             0,
             1,
@@ -228,7 +367,6 @@ function refreshCharts() {
          );
 
 
-         // Disk write
          data_disk.setValue(
             1,
             1,
@@ -237,7 +375,6 @@ function refreshCharts() {
          );
 
 
-         // Network sent
          data_net.setValue(
             0,
             1,
@@ -246,7 +383,6 @@ function refreshCharts() {
          );
 
 
-         // Network received
          data_net.setValue(
             1,
             1,
@@ -255,21 +391,18 @@ function refreshCharts() {
          );
 
 
-         // Draw CPU + Memory
          chart_memcpu.draw(
             data_memcpu,
             options_percent
          );
 
 
-         // Draw Disk
          chart_disk.draw(
             data_disk,
             options_io
          );
 
 
-         // Draw Network
          chart_net.draw(
             data_net,
             options_io
@@ -278,10 +411,10 @@ function refreshCharts() {
       },
 
 
-      error: function (request, error) {
+      error: function(request, error) {
 
          console.log(
-            "Monitor API Request: " +
+            'Monitor API Request: ' +
             JSON.stringify(request)
          );
 
@@ -292,7 +425,7 @@ function refreshCharts() {
 
 
 // =========================================================
-// PROCESS MONITORING
+// PROCESS MONITOR
 // =========================================================
 
 function refreshProcesses() {
@@ -306,9 +439,10 @@ function refreshProcesses() {
       dataType: 'json',
 
 
-      success: function (apidata) {
+      success: function(apidata) {
 
          $('#process_tab').empty();
+
 
          $('#proc_count').text(
             apidata.processes.length
@@ -325,15 +459,32 @@ function refreshProcesses() {
                apidata.processes[p];
 
 
-            var cpuTime =
-               (
+            var memory =
+               process.memory_percent !== null
+               ? process.memory_percent.toFixed(2)
+               : 'N/A';
+
+
+            var cpu_time = 'N/A';
+
+
+            if (
+               process.cpu_times &&
+               process.cpu_times.length >= 2
+            ) {
+
+               cpu_time = (
                   process.cpu_times[0] +
                   process.cpu_times[1]
                ).toFixed(2);
 
+            }
 
-            var memory =
-               process.memory_percent.toFixed(2);
+
+            var threads =
+               process.num_threads !== null
+               ? process.num_threads
+               : 'N/A';
 
 
             $('#process_tab').append(
@@ -353,11 +504,11 @@ function refreshProcesses() {
                '</td>' +
 
                '<td>' +
-               cpuTime +
+               cpu_time +
                '</td>' +
 
                '<td>' +
-               process.num_threads +
+               threads +
                '</td>' +
 
                '</tr>'
@@ -366,27 +517,13 @@ function refreshProcesses() {
 
          }
 
-
-         // Keep sorting functionality
-         var myTH =
-            document.getElementsByTagName("th")[2];
-
-
-         if (myTH) {
-
-            myTH.click();
-
-            myTH.click();
-
-         }
-
       },
 
 
-      error: function (request, error) {
+      error: function(request, error) {
 
          console.log(
-            "Process API Request: " +
+            'Process API Request: ' +
             JSON.stringify(request)
          );
 
@@ -397,7 +534,136 @@ function refreshProcesses() {
 
 
 // =========================================================
-// NETWORK HEALTH MONITORING
+// SERVICE HEALTH
+// =========================================================
+
+function refreshServices() {
+
+   $.ajax({
+
+      url: '/api/services',
+
+      type: 'GET',
+
+      dataType: 'json',
+
+
+      success: function(apidata) {
+
+         $('#service_platform').text(
+            apidata.platform
+         );
+
+
+         $('#service_table').empty();
+
+
+         if (
+            !apidata.services ||
+            apidata.services.length === 0
+         ) {
+
+            $('#service_table').append(
+
+               '<tr>' +
+               '<td colspan="2">' +
+               'No services detected' +
+               '</td>' +
+               '</tr>'
+
+            );
+
+            return;
+         }
+
+
+         for (
+            var i = 0;
+            i < apidata.services.length;
+            i++
+         ) {
+
+            var service =
+               apidata.services[i];
+
+
+            var status =
+               service.status;
+
+
+            var displayStatus =
+               status.toUpperCase();
+
+
+            var icon = '⚪';
+
+
+            if (status === 'running') {
+
+               icon = '🟢';
+
+            }
+            else if (status === 'stopped') {
+
+               icon = '🔴';
+
+            }
+            else if (status === 'active') {
+
+               icon = '🟢';
+
+            }
+
+
+            $('#service_table').append(
+
+               '<tr>' +
+
+               '<td>' +
+               service.name +
+               '</td>' +
+
+               '<td>' +
+               icon +
+               ' ' +
+               displayStatus +
+               '</td>' +
+
+               '</tr>'
+
+            );
+
+         }
+
+      },
+
+
+      error: function(request, error) {
+
+         $('#service_table').html(
+
+            '<tr>' +
+            '<td colspan="2">' +
+            'Unable to retrieve service information' +
+            '</td>' +
+            '</tr>'
+
+         );
+
+
+         console.log(
+            'Service API Request: ' +
+            JSON.stringify(request)
+         );
+
+      }
+
+   });
+}
+
+
+// =========================================================
+// NETWORK HEALTH
 // =========================================================
 
 function refreshNetwork() {
@@ -411,27 +677,22 @@ function refreshNetwork() {
       dataType: 'json',
 
 
-      success: function (apidata) {
+      success: function(apidata) {
 
-         $('#network_tab').empty();
+         $('#network_table').empty();
 
 
-         // Make sure targets exist
          if (
             !apidata.targets ||
             apidata.targets.length === 0
          ) {
 
-            $('#network_tab').append(
+            $('#network_table').append(
 
                '<tr>' +
-
                '<td colspan="4">' +
-
-               'No network targets found' +
-
+               'No network targets available' +
                '</td>' +
-
                '</tr>'
 
             );
@@ -440,7 +701,6 @@ function refreshNetwork() {
          }
 
 
-         // Display every target
          for (
             var i = 0;
             i < apidata.targets.length;
@@ -451,60 +711,42 @@ function refreshNetwork() {
                apidata.targets[i];
 
 
-            var status;
-            var latency;
+            var icon = '⚪';
 
 
-            // Online
+            if (target.status === 'online') {
+
+               icon = '🟢';
+
+            }
+            else if (target.status === 'offline') {
+
+               icon = '🔴';
+
+            }
+            else if (target.status === 'error') {
+
+               icon = '🟠';
+
+            }
+
+
+            var latency = 'Not available';
+
+
             if (
-               target.status === "online"
+               target.latency_ms !== null &&
+               target.latency_ms !== undefined
             ) {
 
-               status = "🟢 ONLINE";
-
-
-               if (
-                  target.latency_ms !== null
-               ) {
-
-                  latency =
-                     target.latency_ms.toFixed(2) +
-                     " ms";
-
-               }
-
-               else {
-
-                  latency = "N/A";
-
-               }
+               latency =
+                  target.latency_ms.toFixed(2) +
+                  ' ms';
 
             }
 
 
-            // Offline
-            else if (
-               target.status === "offline"
-            ) {
-
-               status = "🔴 OFFLINE";
-
-               latency = "N/A";
-
-            }
-
-
-            // Error
-            else {
-
-               status = "⚠ ERROR";
-
-               latency = "N/A";
-
-            }
-
-
-            $('#network_tab').append(
+            $('#network_table').append(
 
                '<tr>' +
 
@@ -517,7 +759,9 @@ function refreshNetwork() {
                '</td>' +
 
                '<td>' +
-               status +
+               icon +
+               ' ' +
+               target.status.toUpperCase() +
                '</td>' +
 
                '<td>' +
@@ -533,26 +777,22 @@ function refreshNetwork() {
       },
 
 
-      error: function (request, error) {
+      error: function(request, error) {
 
-         console.log(
-            "Network API Request: " +
-            JSON.stringify(request)
+         $('#network_table').html(
+
+            '<tr>' +
+            '<td colspan="4">' +
+            'Unable to retrieve network information' +
+            '</td>' +
+            '</tr>'
+
          );
 
 
-         $('#network_tab').html(
-
-            '<tr>' +
-
-            '<td colspan="4">' +
-
-            'Unable to check network' +
-
-            '</td>' +
-
-            '</tr>'
-
+         console.log(
+            'Network API Request: ' +
+            JSON.stringify(request)
          );
 
       }
