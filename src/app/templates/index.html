@@ -1,67 +1,358 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
 
-<br />
+{% block content %}
 
-<div class="jumbotron text-center">
-  <h1>
-    <img src="/static/img/flask.png" height="80px" />
-    Python & Flask Demo App
-  </h1>
+<style>
 
-  <p class="lead mt-3">
-    A Flask-based web application that displays real-time system monitoring information, containerized with Docker and
-    integrated with Kubernetes and CI/CD pipelines.
-  </p>
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
 
-  <hr />
+/* Hero */
 
-  <!-- BUTTON GRID -->
-  <div class="container mt-4">
-    <div class="row justify-content-center">
-      <!-- GitHub -->
-      <div class="col-md-4 mb-3">
-        <img src="static/img/github-2.svg" class="icon mb-2" />
-        <br />
-        <a
-          href="https://github.com/Rizwana200/python-devops-project"
-          class="btn btn-primary btn-lg w-100"
-          target="_blank"
-        >
-          GitHub Repository
-        </a>
-      </div>
+.hero {
+    background: #111827;
+    color: white;
+    padding: 50px 40px;
+    border-radius: 16px;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
 
-      <!-- Docker -->
-      <div class="col-md-4 mb-3">
-        <img src="static/img/docker-whale.svg" class="icon mb-2" />
-        <br />
-        <a
-          href="https://github.com/users/Rizwana200/packages/container/package/python-devops-project"
-          class="btn btn-success btn-lg w-100"
-          target="_blank"
-        >
-          Docker Image (GHCR)
-        </a>
-      </div>
+.hero-icon {
+    font-size: 55px;
+    margin-bottom: 10px;
+}
 
-      <!-- Kubernetes -->
-      <div class="col-md-4 mb-3">
-        <img src="static/img/kubernetes.svg" class="icon mb-2" />
-        <br />
-        <a
-          href="https://github.com/Rizwana200/python-devops-project/tree/main/deploy/kubernetes"
-          class="btn btn-warning btn-lg w-100"
-          target="_blank"
-        >
-          Kubernetes Manifests
-        </a>
-      </div>
+.hero h1 {
+    font-size: 38px;
+    margin: 10px 0;
+}
+
+.hero p {
+    max-width: 800px;
+    margin: 15px auto;
+    color: #d1d5db;
+    line-height: 1.7;
+    font-size: 16px;
+}
+
+/* Buttons */
+
+.home-buttons {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.home-button {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    background: #2563eb;
+    color: white;
+}
+
+.home-button:hover {
+    opacity: 0.85;
+}
+
+/* Features */
+
+.section-title {
+    text-align: center;
+    margin: 35px 0 20px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.feature-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.feature-icon {
+    font-size: 35px;
+}
+
+.feature-card h3 {
+    margin: 12px 0 8px;
+}
+
+.feature-card p {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Technology */
+
+.tech-section {
+    margin-top: 30px;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.tech-list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.tech {
+    padding: 9px 15px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+
+    .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        padding: 35px 20px;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+
+}
+
+</style>
+
+
+<div class="home-container">
+
+
+    <!-- =================================================
+         HERO
+         ================================================= -->
+
+    <section class="hero">
+
+        <div class="hero-icon">
+            🖥️
+        </div>
+
+        <h1>
+            InfraMonitor
+        </h1>
+
+        <h2>
+            Linux Infrastructure Monitoring Platform
+        </h2>
+
+        <p>
+            A real-time infrastructure monitoring platform that
+            tracks system resources, running processes, network
+            connectivity, disk I/O, and Linux service health.
+        </p>
+
+        <p>
+            Built with Python and Flask, containerized with Docker,
+            integrated with Kubernetes, and supported by CI/CD
+            automation.
+        </p>
+
+
+        <div class="home-buttons">
+
+            <a
+                href="/monitor"
+                class="home-button">
+
+                📊 Open Monitoring Dashboard
+
+            </a>
+
+
+            <a
+                href="/info"
+                class="home-button">
+
+                🖥️ System Information
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         FEATURES
+         ================================================= -->
+
+    <h2 class="section-title">
+        Infrastructure Monitoring
+    </h2>
+
+
+    <div class="feature-grid">
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🩺
+            </div>
+
+            <h3>
+                System Health
+            </h3>
+
+            <p>
+                Monitor CPU, memory and disk utilization
+                with health status indicators.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                ⚙️
+            </div>
+
+            <h3>
+                Service Health
+            </h3>
+
+            <p>
+                Monitor important Linux services such as
+                SSH, Docker and Nginx.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🌐
+            </div>
+
+            <h3>
+                Network Health
+            </h3>
+
+            <p>
+                Check network connectivity and measure
+                latency to remote targets.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                👓
+            </div>
+
+            <h3>
+                Process Monitoring
+            </h3>
+
+            <p>
+                View running processes, memory usage,
+                CPU time and thread information.
+            </p>
+
+        </div>
+
     </div>
-  </div>
 
-  <hr />
 
-  <p class="text-muted">🚀 Built using Flask • Docker • Kubernetes • GitHub Actions</p>
+
+    <!-- =================================================
+         TECHNOLOGIES
+         ================================================= -->
+
+    <div class="tech-section">
+
+        <h2>
+            🚀 Technology Stack
+        </h2>
+
+        <div class="tech-list">
+
+            <span class="tech">
+                Python
+            </span>
+
+            <span class="tech">
+                Flask
+            </span>
+
+            <span class="tech">
+                Linux
+            </span>
+
+            <span class="tech">
+                psutil
+            </span>
+
+            <span class="tech">
+                REST APIs
+            </span>
+
+            <span class="tech">
+                Docker
+            </span>
+
+            <span class="tech">
+                Kubernetes
+            </span>
+
+            <span class="tech">
+                GitHub Actions
+            </span>
+
+        </div>
+
+    </div>
+
+
 </div>
 
 {% endblock %}

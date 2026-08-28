@@ -1,161 +1,696 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block content %}
 
 <script src="/static/js/sorttable.js"></script>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="/static/js/monitor.js"></script>
 
-<script type="text/javascript">
-  google.charts.load('current', { packages: ['gauge'] })
-  google.charts.setOnLoadCallback(initCharts)
+<script>
+  google.charts.load('current', { packages: ['gauge'] });
+  google.charts.setOnLoadCallback(initCharts);
 </script>
 
+<style>
+
+/* =====================================================
+   DASHBOARD
+   ===================================================== */
+
+.monitor-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 22px 25px;
+  border-radius: 14px;
+  background: #111827;
+  color: white;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.dashboard-title {
+  margin: 0;
+  font-size: 28px;
+}
+
+.dashboard-subtitle {
+  margin-top: 6px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.dashboard-button {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  background: #2563eb;
+  color: white;
+}
+
+.dashboard-button:hover {
+  opacity: 0.85;
+}
+
+
+/* =====================================================
+   REFRESH CONTROL
+   ===================================================== */
+
+.refresh-box {
+  background: #f3f4f6;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: #374151;
+}
+
+#refslider {
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   STATUS CARD
+   ===================================================== */
+
+.overall-status {
+  padding: 18px 22px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background: white;
+  border-left: 6px solid #2563eb;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.overall-status h2 {
+  margin-top: 0;
+}
+
+
+/* =====================================================
+   RESOURCE CARDS
+   ===================================================== */
+
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.resource-card {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.resource-card h3 {
+  margin-top: 0;
+  color: #374151;
+}
+
+.resource-value {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 10px 0;
+}
+
+.resource-status {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+
+/* =====================================================
+   SECTIONS
+   ===================================================== */
+
+.dashboard-section {
+  background: white;
+  padding: 22px;
+  margin-bottom: 22px;
+  border-radius: 12px;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+
+/* =====================================================
+   TABLES
+   ===================================================== */
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-table th {
+  text-align: left;
+  padding: 13px;
+  background: #111827;
+  color: white;
+}
+
+.dashboard-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+
+/* =====================================================
+   PROCESS TABLE
+   ===================================================== */
+
+.process-container {
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+
+/* =====================================================
+   SERVICE / NETWORK STATUS
+   ===================================================== */
+
+.status-online {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.status-offline {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   CHARTS
+   ===================================================== */
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.chart-card {
+  min-height: 230px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+.dashboard-footer {
+  text-align: center;
+  padding: 20px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 900px) {
+
+  .resource-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+}
+
+</style>
+
+
 <body>
-  <!-- ================================================= -->
-  <!-- REFRESH CONTROL -->
-  <!-- ================================================= -->
 
-  <span style="float: right">
-    Refresh Rate:
-    <span id="refrate"></span> secs
+<div class="monitor-dashboard">
 
-    <input id="refslider" type="range" min="2" max="15" />
-  </span>
 
-  <br />
+  <!-- =================================================
+       HEADER
+       ================================================= -->
 
-  <!-- ================================================= -->
-  <!-- SYSTEM HEALTH -->
-  <!-- ================================================= -->
+  <div class="dashboard-header">
 
-  <h2>🩺 System Health</h2>
+    <div>
 
-  <div>
-    <strong>Overall Status:</strong>
-    <span id="health_status">Loading...</span>
+      <h1 class="dashboard-title">
+        🖥 InfraMonitor
+      </h1>
+
+      <div class="dashboard-subtitle">
+        Linux Infrastructure Monitoring Dashboard
+      </div>
+
+    </div>
+
+
+    <div class="header-controls">
+
+      <button
+        class="dashboard-button"
+        onclick="location.reload()">
+
+        🔄 Refresh
+
+      </button>
+
+
+      <div class="refresh-box">
+
+        Auto Refresh:
+        <strong>
+          <span id="refrate">3</span>
+        </strong>
+        sec
+
+        <input
+          id="refslider"
+          type="range"
+          min="2"
+          max="15"
+          value="3"
+        />
+
+      </div>
+
+    </div>
+
   </div>
 
-  <br />
 
-  <table>
-    <thead>
-      <tr>
-        <th>Resource</th>
-        <th>Usage</th>
-        <th>Status</th>
-      </tr>
-    </thead>
 
-    <tbody>
-      <tr>
-        <td>CPU</td>
-        <td id="health_cpu">--</td>
-        <td id="health_cpu_status">--</td>
-      </tr>
+  <!-- =================================================
+       OVERALL HEALTH
+       ================================================= -->
 
-      <tr>
-        <td>Memory</td>
-        <td id="health_memory">--</td>
-        <td id="health_memory_status">--</td>
-      </tr>
+  <div class="overall-status">
 
-      <tr>
-        <td>Disk</td>
-        <td id="health_disk">--</td>
-        <td id="health_disk_status">--</td>
-      </tr>
-    </tbody>
-  </table>
+    <h2>
+      🩺 System Health
+    </h2>
 
-  <hr />
+    <strong>
+      Overall Status:
+    </strong>
 
-  <!-- ================================================= -->
-  <!-- PROCESS MONITOR -->
-  <!-- ================================================= -->
+    <span id="health_status">
+      Loading...
+    </span>
 
-  <h2>👓 Running Processes (<span id="proc_count"></span>)</h2>
+  </div>
 
-  <div style="height: 200px; overflow: scroll">
-    <table class="sortable">
+
+
+  <!-- =================================================
+       RESOURCE CARDS
+       ================================================= -->
+
+  <div class="resource-grid">
+
+
+    <div class="resource-card">
+
+      <h3>
+        🧠 CPU
+      </h3>
+
+      <div
+        id="health_cpu"
+        class="resource-value">
+
+        --
+
+      </div>
+
+      <div
+        id="health_cpu_status"
+        class="resource-status">
+
+        Loading...
+
+      </div>
+
+    </div>
+
+
+
+    <div class="resource-card">
+
+      <h3>
+        💾 Memory
+      </h3>
+
+      <div
+        id="health_memory"
+        class="resource-value">
+
+        --
+
+      </div>
+
+      <div
+        id="health_memory_status"
+        class="resource-status">
+
+        Loading...
+
+      </div>
+
+    </div>
+
+
+
+    <div class="resource-card">
+
+      <h3>
+        💿 Disk
+      </h3>
+
+      <div
+        id="health_disk"
+        class="resource-value">
+
+        --
+
+      </div>
+
+      <div
+        id="health_disk_status"
+        class="resource-status">
+
+        Loading...
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =================================================
+       PERFORMANCE
+       ================================================= -->
+
+  <div class="dashboard-section">
+
+    <div class="section-header">
+
+      <h2>
+        🌡 Performance Monitor
+      </h2>
+
+    </div>
+
+
+    <div class="chart-grid">
+
+      <div class="chart-card">
+
+        <div
+          id="chart1"
+          class="gauges">
+        </div>
+
+      </div>
+
+
+      <div class="chart-card">
+
+        <div
+          id="chart2"
+          class="gauges">
+        </div>
+
+      </div>
+
+
+      <div class="chart-card">
+
+        <div
+          id="chart3"
+          class="gauges">
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =================================================
+       SERVICES
+       ================================================= -->
+
+  <div class="dashboard-section">
+
+    <div class="section-header">
+
+      <h2>
+        ⚙️ Service Health
+      </h2>
+
+      <span>
+        OS:
+        <strong id="service_platform">
+          Loading...
+        </strong>
+      </span>
+
+    </div>
+
+
+    <table class="dashboard-table">
+
       <thead>
+
         <tr>
-          <th>PID</th>
-          <th>Name</th>
-          <th>Mem</th>
-          <th>CPU Time</th>
-          <th>Threads</th>
+
+          <th>
+            Service
+          </th>
+
+          <th>
+            Status
+          </th>
+
         </tr>
+
       </thead>
 
-      <tbody id="process_tab"></tbody>
+
+      <tbody id="service_table">
+
+        <tr>
+
+          <td colspan="2">
+            Loading...
+          </td>
+
+        </tr>
+
+      </tbody>
+
     </table>
+
   </div>
 
-  <hr />
 
-  <!-- ================================================= -->
-  <!-- PERFORMANCE MONITOR -->
-  <!-- ================================================= -->
 
-  <h2>🌡 Performance Monitor</h2>
+  <!-- =================================================
+       NETWORK
+       ================================================= -->
 
-  <div id="chart1" class="gauges"></div>
+  <div class="dashboard-section">
 
-  <div id="chart2" class="gauges"></div>
+    <div class="section-header">
 
-  <div id="chart3" class="gauges"></div>
+      <h2>
+        🌐 Network Health
+      </h2>
 
-  <hr />
+    </div>
 
-  <!-- ================================================= -->
-  <!-- SERVICE HEALTH -->
-  <!-- ================================================= -->
 
-  <h2>⚙️ Service Health</h2>
+    <table class="dashboard-table">
 
-  <p>
-    Operating System:
-    <strong id="service_platform">Loading...</strong>
-  </p>
+      <thead>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Service</th>
-        <th>Status</th>
-      </tr>
-    </thead>
+        <tr>
 
-    <tbody id="service_table">
-      <tr>
-        <td colspan="2">Loading...</td>
-      </tr>
-    </tbody>
-  </table>
+          <th>
+            Target
+          </th>
 
-  <hr />
+          <th>
+            IP Address
+          </th>
 
-  <!-- ================================================= -->
-  <!-- NETWORK HEALTH -->
-  <!-- ================================================= -->
+          <th>
+            Status
+          </th>
 
-  <h2>🌐 Network Health</h2>
+          <th>
+            Latency
+          </th>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Target</th>
-        <th>IP Address</th>
-        <th>Status</th>
-        <th>Latency</th>
-      </tr>
-    </thead>
+        </tr>
 
-    <tbody id="network_table">
-      <tr>
-        <td colspan="4">Loading...</td>
-      </tr>
-    </tbody>
-  </table>
+      </thead>
+
+
+      <tbody id="network_table">
+
+        <tr>
+
+          <td colspan="4">
+            Loading...
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+
+  <!-- =================================================
+       PROCESSES
+       ================================================= -->
+
+  <div class="dashboard-section">
+
+    <div class="section-header">
+
+      <h2>
+        👓 Running Processes
+        (<span id="proc_count">0</span>)
+      </h2>
+
+    </div>
+
+
+    <div class="process-container">
+
+      <table class="dashboard-table sortable">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              PID
+            </th>
+
+            <th>
+              Name
+            </th>
+
+            <th>
+              Memory %
+            </th>
+
+            <th>
+              CPU Time
+            </th>
+
+            <th>
+              Threads
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody id="process_tab">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =================================================
+       FOOTER
+       ================================================= -->
+
+  <div class="dashboard-footer">
+
+    InfraMonitor • Linux Infrastructure Monitoring
+
+  </div>
+
+
+</div>
+
 </body>
 
 {% endblock %}
