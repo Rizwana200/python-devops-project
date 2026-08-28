@@ -1,19 +1,37 @@
 {% extends "base.html" %} {% block content %}
 
 <script src="/static/js/sorttable.js"></script>
+
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
 <script src="/static/js/monitor.js"></script>
+
 <script type="text/javascript">
-  google.charts.load('current', { packages: ['gauge'] })
+  google.charts.load('current', {
+    packages: ['gauge'],
+  })
+
   google.charts.setOnLoadCallback(initCharts)
 </script>
 
 <body>
+  <!-- Refresh Rate -->
   <span style="float: right">
-    Refresh Rate: <span id="refrate"></span> secs<input id="refslider" type="range" min="2" max="15" />
+    Refresh Rate:
+    <span id="refrate"></span>
+    secs
+
+    <input id="refslider" type="range" min="2" max="15" />
   </span>
+
   <br />
+
+  <!-- ================================================= -->
+  <!-- RUNNING PROCESSES -->
+  <!-- ================================================= -->
+
   <h2>👓 Running Processes (<span id="proc_count"></span>)</h2>
+
   <div style="height: 200px; overflow: scroll">
     <table class="sortable">
       <thead>
@@ -25,16 +43,49 @@
           <th>Threads</th>
         </tr>
       </thead>
+
       <tbody id="process_tab"></tbody>
     </table>
   </div>
 
   <hr />
 
+  <!-- ================================================= -->
+  <!-- PERFORMANCE MONITOR -->
+  <!-- ================================================= -->
+
   <h2>🌡 Performance Monitor</h2>
+
   <div id="chart1" class="gauges"></div>
+
   <div id="chart2" class="gauges"></div>
+
   <div id="chart3" class="gauges"></div>
+
+  <hr />
+
+  <!-- ================================================= -->
+  <!-- NETWORK HEALTH -->
+  <!-- ================================================= -->
+
+  <h2>🌐 Network Health</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Target</th>
+        <th>IP Address</th>
+        <th>Status</th>
+        <th>Latency</th>
+      </tr>
+    </thead>
+
+    <tbody id="network_tab">
+      <tr>
+        <td colspan="4">Checking network...</td>
+      </tr>
+    </tbody>
+  </table>
 </body>
 
 {% endblock %}
